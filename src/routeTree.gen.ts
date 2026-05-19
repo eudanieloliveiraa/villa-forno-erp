@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppProdutosRouteImport } from './routes/_app.produtos'
 import { Route as AppIngredientesRouteImport } from './routes/_app.ingredientes'
+import { Route as AppFinanceiroRouteImport } from './routes/_app.financeiro'
 import { Route as AppEstoqueRouteImport } from './routes/_app.estoque'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 
@@ -41,6 +42,11 @@ const AppIngredientesRoute = AppIngredientesRouteImport.update({
   path: '/ingredientes',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEstoqueRoute = AppEstoqueRouteImport.update({
   id: '/estoque',
   path: '/estoque',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/dashboard': typeof AppDashboardRoute
   '/estoque': typeof AppEstoqueRoute
+  '/financeiro': typeof AppFinanceiroRoute
   '/ingredientes': typeof AppIngredientesRoute
   '/produtos': typeof AppProdutosRoute
 }
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/dashboard': typeof AppDashboardRoute
   '/estoque': typeof AppEstoqueRoute
+  '/financeiro': typeof AppFinanceiroRoute
   '/ingredientes': typeof AppIngredientesRoute
   '/produtos': typeof AppProdutosRoute
 }
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/estoque': typeof AppEstoqueRoute
+  '/_app/financeiro': typeof AppFinanceiroRoute
   '/_app/ingredientes': typeof AppIngredientesRoute
   '/_app/produtos': typeof AppProdutosRoute
 }
@@ -85,10 +94,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/estoque'
+    | '/financeiro'
     | '/ingredientes'
     | '/produtos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/estoque' | '/ingredientes' | '/produtos'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/estoque'
+    | '/financeiro'
+    | '/ingredientes'
+    | '/produtos'
   id:
     | '__root__'
     | '/'
@@ -96,6 +113,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_app/dashboard'
     | '/_app/estoque'
+    | '/_app/financeiro'
     | '/_app/ingredientes'
     | '/_app/produtos'
   fileRoutesById: FileRoutesById
@@ -143,6 +161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIngredientesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/financeiro': {
+      id: '/_app/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof AppFinanceiroRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/estoque': {
       id: '/_app/estoque'
       path: '/estoque'
@@ -163,6 +188,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppEstoqueRoute: typeof AppEstoqueRoute
+  AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppIngredientesRoute: typeof AppIngredientesRoute
   AppProdutosRoute: typeof AppProdutosRoute
 }
@@ -170,6 +196,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppEstoqueRoute: AppEstoqueRoute,
+  AppFinanceiroRoute: AppFinanceiroRoute,
   AppIngredientesRoute: AppIngredientesRoute,
   AppProdutosRoute: AppProdutosRoute,
 }
