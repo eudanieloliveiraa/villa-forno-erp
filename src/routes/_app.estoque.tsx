@@ -24,9 +24,17 @@ function StockPage() {
   const [note, setNote] = useState("");
 
   const submit = () => {
-    if (!ingredientId || quantity <= 0) return toast.error("Selecione ingrediente e quantidade");
+    if (!ingredientId) return toast.error("Selecione um ingrediente");
+    if (type !== "ajuste" && quantity <= 0)
+      return toast.error("Informe a quantidade");
+    if (type === "ajuste" && quantity < 0)
+      return toast.error("Estoque final inválido");
     addMovement(ingredientId, type, quantity, note || undefined);
-    toast.success("Movimentação registrada");
+    toast.success(
+      type === "ajuste"
+        ? `Estoque ajustado para ${quantity}`
+        : "Movimentação registrada",
+    );
     setQuantity(0); setNote("");
   };
 
@@ -55,7 +63,24 @@ function StockPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div><Label>Quantidade</Label><Input type="number" step="0.01" value={quantity} onChange={(e) => setQuantity(+e.target.value)} /></div>
+            <div>
+              <Label>
+                {type === "ajuste" ? "Estoque final (definir para)" : "Quantidade"}
+              </Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={quantity}
+                onChange={(e) => setQuantity(+e.target.value)}
+              />
+              {type === "ajuste" && ingredientId && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Atual:{" "}
+                  {ingredients.find((i) => i.id === ingredientId)?.stock ?? 0}{" "}
+                  {ingredients.find((i) => i.id === ingredientId)?.unit}
+                </p>
+              )}
+            </div>
             <div><Label>Observação</Label><Input value={note} onChange={(e) => setNote(e.target.value)} /></div>
             <Button className="w-full" onClick={submit}>Registrar</Button>
           </CardContent>
