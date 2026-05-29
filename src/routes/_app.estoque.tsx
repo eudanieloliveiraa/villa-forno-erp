@@ -24,9 +24,17 @@ function StockPage() {
   const [note, setNote] = useState("");
 
   const submit = () => {
-    if (!ingredientId || quantity <= 0) return toast.error("Selecione ingrediente e quantidade");
+    if (!ingredientId) return toast.error("Selecione um ingrediente");
+    if (type !== "ajuste" && quantity <= 0)
+      return toast.error("Informe a quantidade");
+    if (type === "ajuste" && quantity < 0)
+      return toast.error("Estoque final inválido");
     addMovement(ingredientId, type, quantity, note || undefined);
-    toast.success("Movimentação registrada");
+    toast.success(
+      type === "ajuste"
+        ? `Estoque ajustado para ${quantity}`
+        : "Movimentação registrada",
+    );
     setQuantity(0); setNote("");
   };
 
