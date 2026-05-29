@@ -30,6 +30,36 @@ export function productCost(product: Product, ingredients: Ingredient[]) {
   }, 0);
 }
 
+export interface IngredientCostBreakdown {
+  ingredientId: string;
+  name: string;
+  quantity: number;
+  unitLabel: string;
+  cost: number;
+  share: number; // 0..1 do custo total
+}
+
+export function productCostBreakdown(
+  product: Product,
+  ingredients: Ingredient[],
+): IngredientCostBreakdown[] {
+  const total = productCost(product, ingredients);
+  return product.ingredients.map((pi) => {
+    const ing = ingredients.find((i) => i.id === pi.ingredientId);
+    const cost = ing ? unitCostBase(ing) * pi.quantity : 0;
+    const unitLabel =
+      ing?.unit === "kg" ? "g" : ing?.unit === "litro" ? "ml" : (ing?.unit ?? "");
+    return {
+      ingredientId: pi.ingredientId,
+      name: ing?.name ?? "—",
+      quantity: pi.quantity,
+      unitLabel,
+      cost,
+      share: total > 0 ? cost / total : 0,
+    };
+  });
+}
+
 export function productMetrics(product: Product, ingredients: Ingredient[]) {
   const cost = productCost(product, ingredients);
   const profit = product.price - cost;
