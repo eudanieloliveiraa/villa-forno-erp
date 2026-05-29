@@ -12,9 +12,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { brl, marginColor, pct, productMetrics } from "@/utils/calc";
+import { brl, marginColor, pct, productCostBreakdown, productMetrics } from "@/utils/calc";
 import type { Product, ProductIngredient } from "@/types";
 
 export const Route = createFileRoute("/_app/produtos")({
@@ -30,6 +30,7 @@ function ProductsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<Omit<Product, "id">>(empty);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const openNew = () => { setEditing(null); setForm(empty); setOpen(true); };
   const openEdit = (p: Product) => { setEditing(p); const { id: _id, ...rest } = p; void _id; setForm({ ...rest, ingredients: [...rest.ingredients] }); setOpen(true); };
@@ -104,6 +105,8 @@ function ProductsPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => {
             const { cost, profit, cmv, margin } = productMetrics(p, ingredients);
+            const breakdown = productCostBreakdown(p, ingredients);
+            const isOpen = expanded === p.id;
             return (
               <Card key={p.id} className="overflow-hidden">
                 <CardContent className="p-5 space-y-4">
@@ -124,8 +127,65 @@ function ProductsPage() {
                     <div><div className="text-xs text-muted-foreground">Margem</div><div className={`font-semibold ${marginColor(margin)}`}>{pct(margin)}</div></div>
                     <div className="col-span-2 pt-2 border-t border-border"><div className="text-xs text-muted-foreground">Lucro bruto</div><div className="font-bold text-emerald-400">{brl(profit)}</div></div>
                   </div>
-                  <div className="text-xs text-muted-foreground border-t border-border pt-3">
-                    {p.ingredients.length} ingrediente{p.ingredients.length !== 1 && "s"}
+                  <div className="border-t border-border pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(isOpen ? null : p.id)}
+                      className="flex w-full items-center justify-between text-xs text-muted-foreground hover:text-foreground transition"
+                    >
+                      <span>
+                        {p.ingredients.length} ingrediente
+                        {p.ingredients.length !== 1 && "s"} · ver CMV
+                      </span>
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="mt-3 space-y-2">
+                        <div className="grid grid-cols-3 gap-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                          <span>Custo total</span>
+                          <span className="text-center">CMV</span>
+                          <span className="text-right">Margem</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-sm font-semibold">
+                          <span>{brl(cost)}</span>
+                          <span className={`text-center ${marginColor(1 - cmv)}`}>{pct(cmv)}</span>
+                          <span className={`text-right ${marginColor(margin)}`}>{pct(margin)}</span>
+                        </div>
+                        <div className="mt-2 space-y-1.5">
+                          {breakdown.map((b) => (
+                            <div key={b.ingredientId} className="space-y-0.5">
+                              <div className="flex justify-between text-xs">
+                                <span className="text-muted-foreground">
+                                  {b.name}{" "}
+                                  <span className="text-[10px]">
+                                    ({b.quantity}
+                                    {b.unitLabel})
+                                  </span>
+                                </span>
+                                <span className="font-medium">{brl(b.cost)}</span>
+                              </div>
+                              <div className="h-1 rounded bg-secondary overflow-hidden">
+                                <div
+                                  className="h-full bg-primary"
+                                  style={{ width: `${Math.min(100, b.share * 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                          {breakdown.length === 0 && (
+                            <p className="text-xs text-muted-foreground text-center py-2">
+                              Sem ficha técnica
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-border text-sm">
+                          <span className="text-muted-foreground">Lucro bruto</span>
+                          <span className="font-bold text-emerald-400">{brl(profit)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
